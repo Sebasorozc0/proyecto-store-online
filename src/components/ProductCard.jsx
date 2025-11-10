@@ -1,13 +1,8 @@
-// src/components/ProductCard.jsx
-
 import React from 'react';
 import { useCart } from '../context/CartContext.jsx';
-// 1. Importa el hook 'useQuote'
 import { useQuote } from '../context/QuoteContext.jsx';
 
-// Estilos
 const styles = {
-  // ... (tus estilos de card, imagePlaceholder, name, price no cambian)
   card: {
     border: '1px solid #ddd',
     borderRadius: '8px',
@@ -18,8 +13,9 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    background: '#fff'
   },
-  imagePlaceholder: {
+  imageContainer: {
     height: '160px',
     backgroundColor: '#eee',
     borderRadius: '4px',
@@ -29,22 +25,28 @@ const styles = {
     color: '#aaa',
     fontSize: '14px',
     marginBottom: '12px',
+    overflow: 'hidden'
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
   },
   name: {
     fontSize: '18px',
     fontWeight: 'bold',
     margin: '0 0 8px 0',
+    color: '#333'
   },
   price: {
     fontSize: '16px',
     color: '#333',
     margin: '0 0 12px 0',
   },
-  // 2. Un div para los botones
   buttonGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px', // Espacio entre botones
+    gap: '8px',
   },
   button: {
     padding: '10px 15px',
@@ -56,14 +58,13 @@ const styles = {
     cursor: 'pointer',
     width: '100%',
   },
-  // 3. Estilo para el botón secundario (cotización)
   secondaryButton: {
     padding: '10px 15px',
     fontSize: '14px',
-    border: '1px solid #007bff', // Borde azul
+    border: '1px solid #007bff',
     borderRadius: '4px',
-    background: '#fff', // Fondo blanco
-    color: '#007bff', // Texto azul
+    background: '#fff',
+    color: '#007bff',
     cursor: 'pointer',
     width: '100%',
   }
@@ -72,32 +73,39 @@ const styles = {
 export default function ProductCard({ product }) {
   
   const { addToCart } = useCart();
-  // 4. Llama al hook de cotización
   const { addToQuote } = useQuote();
   
+  const itemForContext = {
+    id: product.product_id,
+    name: product.name,
+    price: parseFloat(product.price)
+  }
+
   const handleAddToCart = () => {
-    addToCart(product);
-    alert(`${product.name} fue agregado al carrito.`);
+    addToCart(itemForContext);
+    alert(`${itemForContext.name} fue agregado al carrito.`);
   };
 
-  // 5. Nueva función para agregar a cotización
   const handleAddToQuote = () => {
-    addToQuote(product);
-    alert(`${product.name} fue agregado a la cotización.`);
+    addToQuote(itemForContext);
+    alert(`${itemForContext.name} fue agregado a la cotización.`);
   };
 
   return (
     <div style={styles.card}>
       <div>
-        {/* ... (imagen, nombre, precio igual que antes) ... */}
-        <div style={styles.imagePlaceholder}>
-          (Imagen de {product.name})
+        <div style={styles.imageContainer}>
+          {product.image_url ? (
+            <img src={product.image_url} alt={product.name} style={styles.image} />
+          ) : (
+            <span>(Imagen no disponible)</span>
+          )}
         </div>
+        
         <h3 style={styles.name}>{product.name}</h3>
-        <p style={styles.price}>Q {product.price.toFixed(2)}</p>
+        <p style={styles.price}>Q {product.price}</p>
       </div>
       
-      {/* 6. Usa el buttonGroup para ambos botones */}
       <div style={styles.buttonGroup}>
         <button style={styles.button} onClick={handleAddToCart}>
           Agregar al Carrito

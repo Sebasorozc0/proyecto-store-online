@@ -2,82 +2,110 @@
 
 import React, { useState } from 'react';
 
-// Estilos para este componente
+// Estilos
 const styles = {
   container: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '5px 0',
-    borderBottom: '1px solid #eee'
+    borderBottom: '1px solid #000000ff'
   },
   label: {
     fontWeight: 'bold',
-    marginRight: '10px'
+    marginRight: '10px',
+    fontSize: '13px'
+  },
+  inputContainer: {
+    display: 'flex',
+    alignItems: 'center'
   },
   input: {
     width: '60px',
     padding: '4px',
-    border: '1px solid #ccc',
+    border: '1px solid #23276eff',
     borderRadius: '4px',
-    textAlign: 'right'
+    textAlign: 'right',
+    marginRight: '5px'
   },
-  button: {
+  // Estilos dinámicos para el botón
+  button: (loading, success) => ({
     padding: '4px 8px',
     fontSize: '12px',
     border: 'none',
     borderRadius: '4px',
-    background: '#007bff',
+    // Cambia de color si está cargando, si tuvo éxito o si es normal
+    background: success ? '#28a745' : (loading ? '#6c757d' : '#007bff'),
     color: 'white',
-    cursor: 'pointer',
-    marginLeft: '5px'
-  }
+    cursor: loading ? 'not-allowed' : 'pointer',
+    transition: 'background 0.3s ease'
+  })
 };
 
 export default function StockInput({ storeId, storeName, initialStock, productId }) {
   
-  // 1. Este componente maneja su propio estado para el valor del input
   const [stock, setStock] = useState(initialStock);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false); // Nuevo estado para feedback visual
 
-  // 2. Se ejecuta cuando el usuario escribe en el <input>
-  const handleChange = (e) => {
-    // Solo actualiza el estado, no "guarda" nada aún
-    setStock(e.target.value);
-  };
-
-  // 3. Se ejecuta al presionar "Actualizar"
-  const handleUpdate = () => {
-    // --- SIMULACIÓN DE LLAMADA A LA API ---
+  const handleUpdate = async () => {
     setLoading(true);
-    console.log(`Simulando API: Actualizar stock del producto ${productId} en tienda ${storeId} a ${stock}`);
-    
-    // Simulamos un retraso de la red
-    setTimeout(() => {
+    setSuccess(false); // Resetea el estado de éxito
+
+    try {
+      const token = localStorage.getItem('token'); // Obtenemos el token
+
+      const response = await fetch('https://store-online-sa-backend.onrender.com/api/stock/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Es buena práctica enviar el token, aunque el backend aún no lo exija
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          productId: productId,
+          storeId: storeId,
+          newStock: parseInt(stock)
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al actualizar');
+      }
+
+      // ¡ÉXITO!
+      setSuccess(true);
+      // Después de 2 segundos, quitamos el estado de "éxito" para volver al botón azul
+      setTimeout(() => setSuccess(false), 2000);
+
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+      setStock(initialStock); // Revierte el cambio si falló
+    } finally {
       setLoading(false);
-      // En una app real, aquí confirmarías que la API guardó los datos.
-      alert(`Stock para "${storeName}" actualizado a ${stock} (simulado)`);
-    }, 750);
-    // --- FIN DE SIMULACIÓN ---
+    }
   };
 
   return (
     <div style={styles.container}>
-      <label style={styles.label}>{storeName}:</label>
-      <div>
+      <span style={styles.label}>{storeName}:</span>
+      <div style={styles.inputContainer}>
         <input 
           type="number" 
           value={stock}
-          onChange={handleChange}
+          onChange={(e) => setStock(e.target.value)}
           style={styles.input}
-          min="0" // Evita números negativos
+          min="0"
         />
         <button 
           onClick={handleUpdate} 
-          style={styles.button}
-          disabled={loading} // Deshabilita el botón mientras "guarda"
+          style={styles.button(loading, success)}
+          disabled={loading}
         >
-          {loading ? '...' : 'Actualizar'}
+          {/* Cambia el texto del botón según el estado */}
+          {loading ? '...' : (success ? '¡Listo!' : 'Actualizar')}
         </button>
       </div>
     </div>

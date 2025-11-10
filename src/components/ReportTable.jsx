@@ -6,7 +6,7 @@ import React from 'react';
 const styles = {
   container: {
     padding: '20px',
-    background: '#090505ff',
+    background: '#f6f5f5ff',
     borderRadius: '8px',
     margin: '20px 0',
   },
@@ -20,9 +20,9 @@ const styles = {
     fontSize: '14px',
   },
   th: {
-    background: '#191818ff',
+    background: '#ffffffff',
     padding: '10px',
-    border: '1px solid #060404ff',
+    border: '1px solid #ffffffff',
     textAlign: 'left',
   },
   td: {

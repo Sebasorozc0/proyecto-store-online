@@ -1,40 +1,13 @@
-// src/pages/HomePage.jsx
-
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard.jsx';
 import CartIcon from '../components/CartIcon.jsx';
 import { Link } from 'react-router-dom';
 
-// --- DATOS DE SIMULACIÓN (MOCK DATA) ---
-const DUMMY_PRODUCTS = [
-  {
-    id: 101,
-    name: 'Laptop Pro 15"',
-    price: 12500.00,
-  },
-  {
-    id: 102,
-    name: 'Smartwatch V2',
-    price: 1800.00,
-  },
-  {
-    id: 103,
-    name: 'Cámara DSLR Kit',
-    price: 7500.00,
-  },
-  {
-    id: 104,
-    name: 'Celular Ultra',
-    price: 9000.00,
-  }
-];
-
-// Estilos para la página de inicio
 const styles = {
   header: {
     padding: '20px',
-    background: '#333', // Un fondo oscuro como el de tu imagen
-    color: '#FFFFFF', // Texto blanco
+    background: '#333', 
+    color: '#FFFFFF', 
     borderBottom: '1px solid #ddd',
     display: 'flex',
     justifyContent: 'space-between',
@@ -47,19 +20,19 @@ const styles = {
   headerControls: {
     display: 'flex',
     alignItems: 'center',
-    gap: '20px', // Espacio entre links
+    gap: '20px', 
   },
   productList: {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
     padding: '20px',
-    background: '#222', // Fondo oscuro para el contenido
-    minHeight: '80vh', // Asegura que la página no esté vacía si carga lento
+    background: '#222', 
+    minHeight: '80vh', 
   },
   adminLink: {
     textDecoration: 'none',
-    color: '#FFFFFF', // Texto blanco
+    color: '#FFFFFF', 
     fontSize: '14px',
     fontWeight: 'bold',
   }
@@ -71,13 +44,20 @@ export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Simular la carga de productos para la tienda
   useEffect(() => {
-    setTimeout(() => {
-      setProducts(DUMMY_PRODUCTS);
-      setLoading(false);
-    }, 500);
-  }, []);
+    fetch('https://store-online-sa-backend.onrender.com/api/products')
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("¡Error al conectar con el backend!", error);
+        setLoading(false);
+      });
+  }, []); 
 
   return (
     <div>
@@ -100,11 +80,10 @@ export default function HomePage() {
       
       <div style={styles.productList}>
         {loading ? (
-          // ¡ESTA ES LA LÍNEA IMPORTANTE!
-          <p style={{ color: 'white' }}>Cargando productos...</p>
+          <p style={{ color: 'white' }}>Cargando productos desde el servidor...</p>
         ) : (
           products.map(product => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.product_id} product={product} />
           ))
         )}
       </div>
